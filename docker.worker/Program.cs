@@ -23,6 +23,7 @@ namespace docker.worker
             using (var buildHostService = hostService.Build())
             {
                 await buildHostService.RunAsync().ConfigureAwait(true);
+                await buildHostService.StopAsync().ConfigureAwait(true);
             }
         }
     }

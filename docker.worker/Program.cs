@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using docker.worker.manager.Contracts;
 using docker.worker.manager.Implementations;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,13 +18,17 @@ namespace docker.worker
                 builder.AddHttpClient();
                 builder.AddSingleton<IUserService, UserClient>();
                 builder.AddSingleton<ICovidService, CovidServiceClient>();
+                builder.AddSingleton<ICovidStore, CovidStoreProvider>();
                 builder.AddHostedService<CovidWorkerService>();
+                builder.Configure<HostOptions>(options =>
+                {
+                    options.ShutdownTimeout = TimeSpan.FromSeconds(120);
+                });
             });
 
             using (var buildHostService = hostService.Build())
             {
                 await buildHostService.RunAsync().ConfigureAwait(true);
-                await buildHostService.StopAsync().ConfigureAwait(true);
             }
         }
     }
